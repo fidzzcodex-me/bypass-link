@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BypassLink — Skip iklan, langsung ke konten</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://unpkg.com/aos@2.3.4/dist/aos.css" rel="stylesheet">
+<style>
+  :root {
+    --blue-50: #eff6ff;
+    --blue-100: #dbeafe;
+    --blue-200: #bfdbfe;
+    --blue-400: #60a5fa;
+    --blue-500: #3b82f6;
+    --blue-600: #2563eb;
+    --blue-700: #1d4ed8;
+    --slate-50: #f8fafc;
+    --slate-100: #f1f5f9;
+    --slate-200: #e2e8f0;
+    --slate-400: #94a3b8;
+    --slate-500: #64748b;
+    --slate-600: #475569;
+    --slate-700: #334155;
+    --slate-800: #1e293b;
+    --white: #ffffff;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    background: var(--slate-50);
+    color: var(--slate-700);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* NAV */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    background: rgba(255,255,255,0.85);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--blue-100);
+    padding: 0 2rem;
+    height: 60px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .nav-brand {
+    display: flex; align-items: center; gap: 10px;
+    font-weight: 700; font-size: 1.1rem; color: var(--blue-600);
+    text-decoration: none;
+  }
+  .nav-brand .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--blue-500); }
+  .nav-links { display: flex; gap: 1.5rem; }
+  .nav-links a {
+    text-decoration: none; font-size: 0.875rem; font-weight: 500;
+    color: var(--slate-500); transition: color 0.2s;
+  }
+  .nav-links a:hover { color: var(--blue-600); }
+
+  /* HERO */
+  .hero {
+    min-height: 100vh;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    padding: 80px 1.5rem 3rem;
+    background: linear-gradient(160deg, var(--white) 0%, var(--blue-50) 50%, var(--white) 100%);
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero::before {
+    content: '';
+    position: absolute; top: -200px; right: -200px;
+    width: 600px; height: 600px; border-radius: 50%;
+    background: radial-gradient(circle, rgba(59,130,246,0.08) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .hero::after {
+    content: '';
+    position: absolute; bottom: -150px; left: -150px;
+    width: 400px; height: 400px; border-radius: 50%;
+    background: radial-gradient(circle, rgba(96,165,250,0.06) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .hero-badge {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: var(--blue-50); border: 1px solid var(--blue-200);
+    color: var(--blue-600); font-size: 0.78rem; font-weight: 600;
+    padding: 5px 14px; border-radius: 100px; margin-bottom: 1.5rem;
+    letter-spacing: 0.02em;
+  }
+  .hero-badge span { width: 6px; height: 6px; border-radius: 50%; background: var(--blue-500); animation: pulse 2s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.5;transform:scale(1.3)} }
+
+  h1 {
+    font-size: clamp(2rem, 5vw, 3.25rem);
+    font-weight: 700; line-height: 1.2;
+    color: var(--slate-800); margin-bottom: 1rem;
+    letter-spacing: -0.02em;
+  }
+  h1 em { font-style: normal; color: var(--blue-600); }
+  .hero-sub {
+    font-size: 1rem; color: var(--slate-500); max-width: 480px;
+    line-height: 1.7; margin-bottom: 2.5rem;
+  }
+
+  /* CARD INPUT */
+  .card {
+    background: var(--white);
+    border: 1px solid var(--blue-100);
+    border-radius: 20px;
+    padding: 2rem;
+    box-shadow: 0 4px 24px rgba(59,130,246,0.07), 0 1px 4px rgba(0,0,0,0.04);
+    width: 100%; max-width: 600px;
+    position: relative; z-index: 1;
+  }
+  .input-wrap {
+    display: flex; gap: 10px; margin-bottom: 1rem;
+    flex-wrap: wrap;
+  }
+  .input-url {
+    flex: 1; min-width: 0;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.85rem;
+    padding: 12px 16px;
+    border: 1.5px solid var(--blue-200);
+    border-radius: 10px;
+    outline: none;
+    background: var(--blue-50);
+    color: var(--slate-700);
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+  .input-url:focus {
+    border-color: var(--blue-500);
+    box-shadow: 0 0 0 3px rgba(59,130,246,0.12);
+    background: var(--white);
+  }
+  .input-url::placeholder { color: var(--slate-400); }
+
+  .btn-bypass {
+    padding: 12px 24px;
+    background: var(--blue-600);
+    color: white; border: none; border-radius: 10px;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-weight: 600; font-size: 0.9rem;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.1s, box-shadow 0.2s;
+    white-space: nowrap;
+    box-shadow: 0 2px 8px rgba(37,99,235,0.25);
+  }
+  .btn-bypass:hover { background: var(--blue-700); box-shadow: 0 4px 16px rgba(37,99,235,0.35); }
+  .btn-bypass:active { transform: scale(0.98); }
+  .btn-bypass:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+
+  /* DETECT BADGE */
+  .detect-row {
+    display: flex; align-items: center; gap: 8px;
+    font-size: 0.8rem; color: var(--slate-400);
+    font-family: 'JetBrains Mono', monospace;
+    min-height: 22px;
+  }
+  .detect-label {
+    padding: 2px 10px; border-radius: 100px;
+    font-size: 0.72rem; font-weight: 600;
+    background: var(--blue-50); color: var(--blue-600);
+    border: 1px solid var(--blue-200);
+  }
+  .detect-label.unknown { background: var(--slate-100); color: var(--slate-400); border-color: var(--slate-200); }
+  .detect-label.detected { background: #ecfdf5; color: #059669; border-color: #a7f3d0; }
+  .detect-label.error { background: #fef2f2; color: #dc2626; border-color: #fecaca; }
+
+  /* RESULT */
+  .result-box {
+    margin-top: 1rem;
+    background: var(--blue-50);
+    border: 1.5px solid var(--blue-200);
+    border-radius: 12px;
+    padding: 1rem 1.25rem;
+    display: none;
+  }
+  .result-box.visible { display: block; }
+  .result-label {
+    font-size: 0.72rem; font-weight: 600; color: var(--blue-500);
+    text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 6px;
+  }
+  .result-url {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.82rem; color: var(--slate-700);
+    word-break: break-all; line-height: 1.6;
+  }
+  .result-actions {
+    display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap;
+  }
+  .btn-sm {
+    padding: 6px 14px; border-radius: 7px; font-size: 0.78rem;
+    font-weight: 600; cursor: pointer; border: none;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    transition: all 0.15s;
+  }
+  .btn-copy { background: var(--blue-600); color: white; }
+  .btn-copy:hover { background: var(--blue-700); }
+  .btn-open { background: var(--white); color: var(--blue-600); border: 1.5px solid var(--blue-200); }
+  .btn-open:hover { border-color: var(--blue-500); }
+
+  /* LOADER */
+  .loader {
+    display: none; align-items: center; gap: 8px;
+    font-size: 0.82rem; color: var(--slate-400); margin-top: 8px;
+  }
+  .loader.visible { display: flex; }
+  .spinner {
+    width: 16px; height: 16px; border-radius: 50%;
+    border: 2px solid var(--blue-200);
+    border-top-color: var(--blue-500);
+    animation: spin 0.7s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* SUPPORTED SECTION */
+  .section { padding: 5rem 1.5rem; }
+  .section-inner { max-width: 900px; margin: 0 auto; }
+  .section-title {
+    font-size: 1.5rem; font-weight: 700; color: var(--slate-800);
+    margin-bottom: 0.5rem; letter-spacing: -0.01em;
+  }
+  .section-sub { font-size: 0.9rem; color: var(--slate-400); margin-bottom: 2.5rem; }
+
+  .grid-3 { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 1rem; }
+  .service-card {
+    background: var(--white);
+    border: 1px solid var(--blue-100);
+    border-radius: 14px;
+    padding: 1.25rem 1.5rem;
+    transition: box-shadow 0.2s, transform 0.2s;
+  }
+  .service-card:hover {
+    box-shadow: 0 6px 20px rgba(59,130,246,0.1);
+    transform: translateY(-2px);
+  }
+  .service-name { font-weight: 600; font-size: 0.9rem; color: var(--slate-700); margin-bottom: 4px; }
+  .service-domain { font-size: 0.75rem; font-family: 'JetBrains Mono', monospace; color: var(--slate-400); }
+
+  /* API DOCS */
+  .api-section { background: var(--white); }
+  .endpoint-block {
+    background: var(--slate-800);
+    border-radius: 14px;
+    overflow: hidden;
+    margin-bottom: 1.25rem;
+  }
+  .endpoint-header {
+    display: flex; align-items: center; gap: 10px;
+    padding: 12px 18px;
+    background: var(--slate-700);
+  }
+  .method {
+    font-size: 0.72rem; font-weight: 700; padding: 3px 10px;
+    border-radius: 5px; font-family: 'JetBrains Mono', monospace;
+    letter-spacing: 0.05em;
+  }
+  .method.post { background: #dbeafe; color: #1d4ed8; }
+  .method.get { background: #dcfce7; color: #15803d; }
+  .endpoint-path {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.82rem; color: #e2e8f0;
+  }
+  .endpoint-desc { font-size: 0.78rem; color: #94a3b8; margin-left: auto; }
+  pre {
+    padding: 1.25rem 1.5rem;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.78rem;
+    color: #cbd5e1;
+    overflow-x: auto;
+    line-height: 1.7;
+    margin: 0;
+  }
+  .key { color: #93c5fd; }
+  .str { color: #86efac; }
+  .num { color: #fcd34d; }
+  .cmt { color: #475569; }
+
+  /* FOOTER */
+  footer {
+    text-align: center; padding: 2rem;
+    border-top: 1px solid var(--blue-100);
+    font-size: 0.8rem; color: var(--slate-400);
+  }
+  footer a { color: var(--blue-500); text-decoration: none; }
+
+  @media (max-width: 600px) {
+    .nav-links { display: none; }
+    .input-wrap { flex-direction: column; }
+    .btn-bypass { width: 100%; }
+    h1 { font-size: 1.75rem; }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a class="nav-brand" href="#">
+    <div class="dot"></div>
+    BypassLink
+  </a>
+  <div class="nav-links">
+    <a href="#supported">Supported</a>
+    <a href="#api">API Docs</a>
+    <a href="https://bypass.tools" target="_blank">bypass.tools ↗</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-badge"><span></span> Powered by bypass.tools API</div>
+
+  <h1 data-aos="fade-up" data-aos-duration="600">
+    Skip iklan,<br><em>langsung ke konten</em>
+  </h1>
+  <p class="hero-sub" data-aos="fade-up" data-aos-delay="100" data-aos-duration="600">
+    Paste link Linkvertise, shorte.st, atau layanan serupa — kami bypass langsung ke URL tujuan.
+  </p>
+
+  <div class="card" data-aos="fade-up" data-aos-delay="200" data-aos-duration="600">
+    <div class="input-wrap">
+      <input
+        class="input-url"
+        id="urlInput"
+        type="url"
+        placeholder="https://linkvertise.com/..."
+        autocomplete="off"
+        spellcheck="false"
+      />
+      <button class="btn-bypass" id="btnBypass" onclick="runBypass()">
+        Bypass →
+      </button>
+    </div>
+
+    <div class="detect-row">
+      <span>Terdeteksi:</span>
+      <span class="detect-label unknown" id="detectBadge">—</span>
+      <span id="detectText" style="color:var(--slate-400)"></span>
+    </div>
+
+    <div class="loader" id="loader">
+      <div class="spinner"></div>
+      <span>Sedang memproses...</span>
+    </div>
+
+    <div class="result-box" id="resultBox">
+      <div class="result-label">URL Hasil</div>
+      <div class="result-url" id="resultUrl"></div>
+      <div class="result-actions">
+        <button class="btn-sm btn-copy" onclick="copyResult()">Salin URL</button>
+        <button class="btn-sm btn-open" onclick="openResult()">Buka →</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SUPPORTED -->
+<section class="section" id="supported">
+  <div class="section-inner">
+    <h2 class="section-title" data-aos="fade-up">Layanan yang Didukung</h2>
+    <p class="section-sub" data-aos="fade-up" data-aos-delay="50">Beberapa shortener & monetization link yang bisa dibypass</p>
+    <div class="grid-3">
+      <div class="service-card" data-aos="fade-up" data-aos-delay="0">
+        <div class="service-name">Linkvertise</div>
+        <div class="service-domain">linkvertise.com</div>
+      </div>
+      <div class="service-card" data-aos="fade-up" data-aos-delay="50">
+        <div class="service-name">Shorte.st</div>
+        <div class="service-domain">shorte.st</div>
+      </div>
+      <div class="service-card" data-aos="fade-up" data-aos-delay="100">
+        <div class="service-name">Rekonise</div>
+        <div class="service-domain">rekonise.com</div>
+      </div>
+      <div class="service-card" data-aos="fade-up" data-aos-delay="150">
+        <div class="service-name">Sub2Unlock</div>
+        <div class="service-domain">sub2unlock.com</div>
+      </div>
+      <div class="service-card" data-aos="fade-up" data-aos-delay="200">
+        <div class="service-name">Social Unlock</div>
+        <div class="service-domain">socialunlock.net</div>
+      </div>
+      <div class="service-card" data-aos="fade-up" data-aos-delay="250">
+        <div class="service-name">& Lainnya</div>
+        <div class="service-domain">via bypass.tools</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- API DOCS -->
+<section class="section api-section" id="api">
+  <div class="section-inner">
+    <h2 class="section-title" data-aos="fade-up">API Reference</h2>
+    <p class="section-sub" data-aos="fade-up" data-aos-delay="50">Gunakan langsung di project kamu via bypass.tools API</p>
+
+    <!-- INIT -->
+    <div data-aos="fade-up" data-aos-delay="0">
+      <div class="endpoint-block">
+        <div class="endpoint-header">
+          <span class="method post">POST</span>
+          <span class="endpoint-path">/api/mobile/init</span>
+          <span class="endpoint-desc">Dapatkan session token</span>
+        </div>
+        <pre><span class="cmt">// Request body</span>
+{
+  <span class="key">"deviceId"</span>: <span class="str">"sha256(\"bypasstools:\" + androidId)"</span>,
+  <span class="key">"platform"</span>: <span class="str">"android"</span>,
+  <span class="key">"appVersion"</span>: <span class="str">"1.0.0"</span>
+}
+
+<span class="cmt">// Response</span>
+{
+  <span class="key">"sessionToken"</span>: <span class="str">"eyJhbGciOi..."</span>
+}</pre>
+      </div>
+    </div>
+
+    <!-- BYPASS -->
+    <div data-aos="fade-up" data-aos-delay="80">
+      <div class="endpoint-block">
+        <div class="endpoint-header">
+          <span class="method post">POST</span>
+          <span class="endpoint-path">/api/mobile/bypass</span>
+          <span class="endpoint-desc">Bypass URL</span>
+        </div>
+        <pre><span class="cmt">// Headers</span>
+Authorization: Bearer <span class="str">{sessionToken}</span>
+X-Device-ID: <span class="str">{deviceId}</span>
+Content-Type: application/json
+
+<span class="cmt">// Request body</span>
+{
+  <span class="key">"url"</span>: <span class="str">"https://linkvertise.com/..."</span>,
+  <span class="key">"forceRefresh"</span>: <span class="num">false</span>
+}
+
+<span class="cmt">// Response (success)</span>
+{
+  <span class="key">"result"</span>: <span class="str">"https://url-tujuan-asli.com/..."</span>
+}</pre>
+      </div>
+    </div>
+
+    <!-- JS SNIPPET -->
+    <div data-aos="fade-up" data-aos-delay="160">
+      <p style="font-size:0.85rem;font-weight:600;color:var(--slate-600);margin-bottom:10px;">Contoh implementasi (Node.js)</p>
+      <div class="endpoint-block">
+        <pre><span class="cmt">// utils/bypass.js</span>
+<span class="key">const</span> crypto = require(<span class="str">"crypto"</span>);
+
+<span class="key">const</span> bypass = async (url, androidId = crypto.randomBytes(<span class="num">16</span>).toString(<span class="str">"hex"</span>)) => {
+  <span class="key">const</span> deviceId = crypto.createHash(<span class="str">"sha256"</span>)
+    .update(<span class="str">`bypasstools:${androidId}`</span>).digest(<span class="str">"hex"</span>);
+
+  <span class="key">const</span> { sessionToken } = await fetch(<span class="str">"https://bypass.tools/api/mobile/init"</span>, {
+    method: <span class="str">"POST"</span>,
+    headers: { <span class="str">"Content-Type"</span>: <span class="str">"application/json"</span> },
+    body: JSON.stringify({ deviceId, platform: <span class="str">"android"</span>, appVersion: <span class="str">"1.0.0"</span> })
+  }).then(r => r.json());
+
+  <span class="key">const</span> data = await fetch(<span class="str">"https://bypass.tools/api/mobile/bypass"</span>, {
+    method: <span class="str">"POST"</span>,
+    headers: {
+      <span class="str">"Content-Type"</span>: <span class="str">"application/json"</span>,
+      Authorization: <span class="str">`Bearer ${sessionToken}`</span>,
+      <span class="str">"X-Device-ID"</span>: deviceId
+    },
+    body: JSON.stringify({ url, forceRefresh: <span class="num">false</span> })
+  }).then(r => r.json());
+
+  <span class="key">if</span> (!data.result) <span class="key">throw new</span> Error(data.message || <span class="str">"Bypass failed"</span>);
+  <span class="key">return</span> data.result;
+};
+
+module.exports = bypass;</pre>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <p>BypassLink — UI wrapper untuk <a href="https://bypass.tools" target="_blank">bypass.tools</a> API &nbsp;·&nbsp; Dibuat dengan 🩵</p>
+</footer>
+
+<script src="https://unpkg.com/aos@2.3.4/dist/aos.js"></script>
+<script>
+AOS.init({ once: true, offset: 60 });
+
+const SERVICES = [
+  { name: "Linkvertise", domains: ["linkvertise.com", "linkvertise.net"] },
+  { name: "Shorte.st", domains: ["shorte.st", "sh.st"] },
+  { name: "Rekonise", domains: ["rekonise.com"] },
+  { name: "Sub2Unlock", domains: ["sub2unlock.com"] },
+  { name: "Social Unlock", domains: ["socialunlock.net"] },
+  { name: "bypass.tools", domains: ["bypass.tools"] },
+];
+
+let lastResult = "";
+
+const detectService = (url) => {
+  try {
+    const host = new URL(url).hostname.replace("www.", "");
+    for (const s of SERVICES) {
+      if (s.domains.some(d => host === d || host.endsWith("." + d))) return s.name;
+    }
+    return null;
+  } catch { return null; }
+};
+
+document.getElementById("urlInput").addEventListener("input", (e) => {
+  const val = e.target.value.trim();
+  const badge = document.getElementById("detectBadge");
+  const text = document.getElementById("detectText");
+  if (!val) {
+    badge.className = "detect-label unknown"; badge.textContent = "—"; text.textContent = ""; return;
+  }
+  const svc = detectService(val);
+  if (svc) {
+    badge.className = "detect-label detected"; badge.textContent = svc;
+    text.textContent = "— siap dibypass";
+  } else {
+    badge.className = "detect-label unknown"; badge.textContent = "Tidak dikenal";
+    text.textContent = "— mungkin tetap bisa dibypass";
+  }
+});
+
+const runBypass = async () => {
+  const url = document.getElementById("urlInput").value.trim();
+  if (!url) return;
+
+  const btn = document.getElementById("btnBypass");
+  const loader = document.getElementById("loader");
+  const resultBox = document.getElementById("resultBox");
+  const resultUrl = document.getElementById("resultUrl");
+  const badge = document.getElementById("detectBadge");
+
+  btn.disabled = true;
+  loader.classList.add("visible");
+  resultBox.classList.remove("visible");
+  document.getElementById("detectText").textContent = "";
+
+  try {
+    const res = await fetch("/api/bypass", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ url })
+    });
+    const data = await res.json();
+    if (!res.ok || !data.result) throw new Error(data.error || "Bypass gagal");
+
+    lastResult = data.result;
+    resultUrl.textContent = data.result;
+    resultBox.classList.add("visible");
+    badge.className = "detect-label detected";
+    badge.textContent = "Berhasil";
+
+  } catch (err) {
+    badge.className = "detect-label error";
+    badge.textContent = "Gagal";
+    document.getElementById("detectText").textContent = `— ${err.message}`;
+  } finally {
+    btn.disabled = false;
+    loader.classList.remove("visible");
+  }
+};
+
+document.getElementById("urlInput").addEventListener("keydown", (e) => {
+  if (e.key === "Enter") runBypass();
+});
+
+const copyResult = () => {
+  if (!lastResult) return;
+  navigator.clipboard.writeText(lastResult).then(() => {
+    const btn = document.querySelector(".btn-copy");
+    btn.textContent = "Tersalin ✓";
+    setTimeout(() => btn.textContent = "Salin URL", 1500);
+  });
+};
+
+const openResult = () => { if (lastResult) window.open(lastResult, "_blank"); };
+</script>
+</body>
+</html>
