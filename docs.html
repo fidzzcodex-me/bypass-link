@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BypassURL — API Docs</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://unpkg.com/aos@2.3.4/dist/aos.css" rel="stylesheet">
+<style>
+:root{
+  --blue-50:#eff6ff;--blue-100:#dbeafe;--blue-200:#bfdbfe;
+  --blue-500:#3b82f6;--blue-600:#2563eb;--blue-700:#1d4ed8;
+  --slate-50:#f8fafc;--slate-100:#f1f5f9;--slate-200:#e2e8f0;
+  --slate-400:#94a3b8;--slate-500:#64748b;--slate-600:#475569;
+  --slate-700:#334155;--slate-800:#1e293b;--white:#ffffff;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--slate-50);color:var(--slate-700);overflow-x:hidden}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(1.3)}}
+
+/* NAV */
+nav{
+  position:fixed;top:0;left:0;right:0;z-index:100;
+  background:rgba(255,255,255,0.88);backdrop-filter:blur(12px);
+  border-bottom:1px solid var(--blue-100);
+  padding:0 2rem;height:60px;
+  display:flex;align-items:center;gap:10px;
+}
+.nav-back{
+  display:flex;align-items:center;gap:5px;
+  padding:5px 12px;border-radius:8px;
+  border:1.5px solid var(--slate-200);background:var(--white);
+  color:var(--slate-500);font-size:.78rem;font-weight:600;
+  text-decoration:none;transition:all .15s;
+}
+.nav-back:hover{border-color:var(--blue-200);color:var(--blue-600);background:var(--blue-50)}
+.nav-sep{width:1px;height:18px;background:var(--slate-200)}
+.nav-brand{display:flex;align-items:center;gap:7px;font-weight:700;font-size:1rem;color:var(--blue-600);text-decoration:none}
+.nav-brand .dot{width:7px;height:7px;border-radius:50%;background:var(--blue-500)}
+.nav-tag{font-size:.7rem;font-weight:600;padding:2px 9px;border-radius:100px;background:var(--blue-50);color:var(--blue-600);border:1px solid var(--blue-200)}
+.nav-anchors{margin-left:auto;display:flex;gap:4px}
+.nav-anchors a{
+  display:flex;align-items:center;gap:5px;
+  padding:5px 11px;border-radius:7px;font-size:.75rem;font-weight:600;
+  text-decoration:none;color:var(--slate-500);transition:all .15s;
+}
+.nav-anchors a:hover,.nav-anchors a.active{background:var(--blue-50);color:var(--blue-600)}
+
+/* HERO */
+.hero{
+  padding:5.5rem 1.5rem 3.5rem;text-align:center;
+  background:linear-gradient(160deg,var(--white) 0%,var(--blue-50) 55%,var(--white) 100%);
+  position:relative;overflow:hidden;
+}
+.hero::before{content:'';position:absolute;top:-180px;right:-180px;width:500px;height:500px;border-radius:50%;background:radial-gradient(circle,rgba(59,130,246,.07) 0%,transparent 70%);pointer-events:none}
+.hero::after{content:'';position:absolute;bottom:-120px;left:-120px;width:360px;height:360px;border-radius:50%;background:radial-gradient(circle,rgba(96,165,250,.05) 0%,transparent 70%);pointer-events:none}
+.hero-badge{display:inline-flex;align-items:center;gap:6px;background:var(--blue-50);border:1px solid var(--blue-200);color:var(--blue-600);font-size:.72rem;font-weight:600;padding:4px 13px;border-radius:100px;margin-bottom:1.1rem}
+.hero-badge span{width:6px;height:6px;border-radius:50%;background:var(--blue-500);animation:pulse 2s infinite}
+.hero h1{font-size:clamp(1.6rem,4vw,2.3rem);font-weight:700;color:var(--slate-800);letter-spacing:-.02em;margin-bottom:.55rem}
+.hero h1 em{font-style:normal;color:var(--blue-600)}
+.hero p{font-size:.875rem;color:var(--slate-500);max-width:440px;margin:0 auto 2rem;line-height:1.7}
+
+.hero-pills{display:flex;justify-content:center;gap:.6rem;flex-wrap:wrap;position:relative;z-index:1}
+.pill{
+  display:flex;align-items:center;gap:6px;
+  padding:8px 18px;border-radius:10px;font-size:.8rem;font-weight:600;
+  text-decoration:none;background:var(--white);color:var(--blue-600);
+  border:1.5px solid var(--blue-200);transition:all .2s;
+  box-shadow:0 1px 6px rgba(59,130,246,.06);
+}
+.pill:hover{background:var(--blue-600);color:var(--white);border-color:var(--blue-600);transform:translateY(-1px);box-shadow:0 4px 14px rgba(37,99,235,.22)}
+
+/* SECTIONS */
+.page{padding-top:60px}
+.sec{padding:4rem 1.5rem}
+.sec-inner{max-width:700px;margin:0 auto}
+.eyebrow{font-size:.67rem;font-weight:700;color:var(--blue-500);letter-spacing:.1em;text-transform:uppercase;margin-bottom:.35rem}
+.sec h2{font-size:1.3rem;font-weight:700;color:var(--slate-800);letter-spacing:-.01em;margin-bottom:.45rem}
+.sec-desc{font-size:.85rem;color:var(--slate-500);line-height:1.7;margin-bottom:1.4rem;max-width:540px}
+.divider{height:1px;background:var(--blue-50);max-width:700px;margin:0 auto}
+
+/* ENDPOINT LABEL */
+.ep-row{
+  display:flex;align-items:center;gap:8px;
+  background:var(--slate-800);border-radius:10px 10px 0 0;padding:10px 15px;
+}
+.badge-post{font-size:.67rem;font-weight:700;padding:2px 8px;border-radius:4px;font-family:'JetBrains Mono',monospace;background:#dbeafe;color:#1d4ed8;letter-spacing:.04em}
+.badge-get{font-size:.67rem;font-weight:700;padding:2px 8px;border-radius:4px;font-family:'JetBrains Mono',monospace;background:#dcfce7;color:#15803d;letter-spacing:.04em}
+.ep-path{font-family:'JetBrains Mono',monospace;font-size:.79rem;color:#e2e8f0}
+.ep-note{margin-left:auto;font-size:.7rem;color:#64748b}
+
+/* CODE BLOCK */
+.code-block{border-radius:10px;overflow:hidden;border:1px solid var(--slate-200)}
+.code-block.attached{border-radius:0 0 10px 10px;border-top:none}
+.tab-bar{display:flex;background:var(--slate-800);border-bottom:1px solid #1e293b}
+.tab-btn{padding:7px 15px;font-size:.71rem;font-weight:600;font-family:'Plus Jakarta Sans',sans-serif;color:#64748b;background:transparent;border:none;cursor:pointer;transition:all .15s;border-bottom:2px solid transparent}
+.tab-btn:hover{color:#94a3b8}
+.tab-btn.active{color:#60a5fa;border-bottom-color:#3b82f6}
+.tab-pane{display:none}.tab-pane.active{display:block}
+pre{background:var(--slate-800);padding:1.1rem 1.2rem;font-family:'JetBrains Mono',monospace;font-size:.75rem;color:#cbd5e1;overflow-x:auto;line-height:1.75;margin:0;position:relative}
+.cp{position:absolute;top:9px;right:11px;background:#334155;border:none;color:#94a3b8;font-size:.63rem;padding:3px 8px;border-radius:4px;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;font-weight:600;transition:all .15s}
+.cp:hover{background:#475569;color:#e2e8f0}
+.k{color:#93c5fd}.s{color:#86efac}.n{color:#fcd34d}.c{color:#475569}
+
+/* JSON CARD */
+.json-card{background:var(--white);border:1.5px solid var(--blue-100);border-radius:10px;overflow:hidden;margin-bottom:1rem;box-shadow:0 2px 10px rgba(59,130,246,.04)}
+.json-head{display:flex;align-items:center;justify-content:space-between;padding:8px 13px;background:var(--blue-50);border-bottom:1px solid var(--blue-100)}
+.json-title{font-size:.68rem;font-weight:700;color:var(--blue-500);letter-spacing:.07em;text-transform:uppercase}
+.json-cp{display:flex;align-items:center;gap:4px;background:var(--white);border:1px solid var(--blue-200);color:var(--blue-600);font-size:.66rem;font-weight:600;padding:3px 9px;border-radius:5px;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;transition:all .15s}
+.json-cp:hover{background:var(--blue-600);color:var(--white);border-color:var(--blue-600)}
+.json-body{padding:.9rem 1.1rem;font-family:'JetBrains Mono',monospace;font-size:.74rem;color:var(--slate-600);line-height:1.8;overflow-x:auto}
+.jk{color:var(--blue-600)}.jv{color:#16a34a}.jn{color:#d97706}
+
+/* PARAMS TABLE */
+.ptable{width:100%;border-collapse:collapse;font-size:.79rem;border-radius:10px;overflow:hidden;border:1px solid var(--slate-200);margin-bottom:1rem}
+.ptable th{text-align:left;padding:8px 12px;font-size:.65rem;font-weight:700;color:var(--slate-400);letter-spacing:.08em;text-transform:uppercase;background:var(--slate-50);border-bottom:1px solid var(--slate-200)}
+.ptable td{padding:8px 12px;border-bottom:1px solid var(--slate-100);vertical-align:top;font-size:.78rem;color:var(--slate-600)}
+.ptable tr:last-child td{border-bottom:none}
+.pn{font-family:'JetBrains Mono',monospace;font-size:.73rem;color:var(--blue-600);font-weight:500}
+.pt{font-family:'JetBrains Mono',monospace;font-size:.68rem;color:var(--slate-400)}
+.pr{font-size:.63rem;font-weight:700;color:#dc2626;background:#fef2f2;padding:1px 7px;border-radius:100px;border:1px solid #fecaca}
+
+/* GRID */
+.grid-2{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:.75rem}
+.svc{background:var(--white);border:1px solid var(--blue-100);border-radius:11px;padding:1rem 1.2rem;transition:all .2s}
+.svc:hover{box-shadow:0 6px 18px rgba(59,130,246,.1);transform:translateY(-2px)}
+.svc-name{font-weight:600;font-size:.85rem;color:var(--slate-700);margin-bottom:3px}
+.svc-dom{font-size:.7rem;font-family:'JetBrains Mono',monospace;color:var(--slate-400)}
+
+footer{text-align:center;padding:2rem;border-top:1px solid var(--blue-100);font-size:.76rem;color:var(--slate-400)}
+footer a{color:var(--blue-500);text-decoration:none}
+
+@media(max-width:600px){
+  nav{padding:0 1rem}
+  .nav-anchors a span{display:none}
+  .sec{padding:3rem 1.1rem}
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <a class="nav-back" href="/">
+    <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M19 12H5M5 12l7-7M5 12l7 7"/></svg>
+    Back
+  </a>
+  <div class="nav-sep"></div>
+  <a class="nav-brand" href="/"><div class="dot"></div>BypassURL</a>
+  <span class="nav-tag">Docs</span>
+  <div class="nav-anchors">
+    <a href="#endpoint">
+      <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M8 9l3 3-3 3M13 15h3"/><rect x="2" y="3" width="20" height="18" rx="2"/></svg>
+      <span>Endpoint</span>
+    </a>
+    <a href="#usage">
+      <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+      <span>Contoh</span>
+    </a>
+    <a href="#supported">
+      <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
+      <span>Supported</span>
+    </a>
+  </div>
+</nav>
+
+<div class="page">
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-badge"><span></span> REST API</div>
+  <h1 data-aos="fade-up" data-aos-duration="500">BypassURL <em>API</em></h1>
+  <p data-aos="fade-up" data-aos-delay="80" data-aos-duration="500">
+    Endpoint untuk bypass link shortener & ad-locker. Pakai di project, script, atau bot kamu.
+  </p>
+  <div class="hero-pills" data-aos="fade-up" data-aos-delay="160" data-aos-duration="500">
+    <a class="pill" href="#endpoint">
+      <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M8 9l3 3-3 3M13 15h3"/><rect x="2" y="3" width="20" height="18" rx="2"/></svg>
+      Endpoint
+    </a>
+    <a class="pill" href="#usage">
+      <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+      Contoh Kode
+    </a>
+    <a class="pill" href="#supported">
+      <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
+      Supported
+    </a>
+  </div>
+</section>
+
+<!-- ENDPOINT -->
+<section class="sec" id="endpoint">
+  <div class="sec-inner">
+
+    <div data-aos="fade-up">
+      <div class="eyebrow">API Reference</div>
+      <h2>Endpoint</h2>
+      <p class="sec-desc">Satu endpoint, satu parameter. Kirim URL target, dapat URL aslinya.</p>
+    </div>
+
+    <!-- GET endpoint -->
+    <div data-aos="fade-up" data-aos-delay="50">
+      <p style="font-size:.76rem;font-weight:600;color:var(--slate-500);margin-bottom:.5rem">Via query string</p>
+      <div class="ep-row" style="border-radius:10px 10px 0 0">
+        <span class="badge-get">GET</span>
+        <span class="ep-path">/api/bypass?url=https://linkvertise.com/...</span>
+      </div>
+      <div class="code-block attached" style="margin-bottom:1rem">
+        <div class="tab-bar">
+          <button class="tab-btn active" onclick="tab(this,'g1','js')">JavaScript</button>
+          <button class="tab-btn" onclick="tab(this,'g1','py')">Python</button>
+          <button class="tab-btn" onclick="tab(this,'g1','curl')">cURL</button>
+        </div>
+        <div class="tab-pane active" id="g1-js"><pre><button class="cp" onclick="cp(this)">copy</button><span class="k">const</span> url = <span class="s">"https://linkvertise.com/546946/example"</span>;
+<span class="k">const</span> res = <span class="k">await</span> fetch(<span class="s">`/api/bypass?url=${encodeURIComponent(url)}`</span>);
+<span class="k">const</span> data = <span class="k">await</span> res.json();
+console.log(data.result);</pre></div>
+        <div class="tab-pane" id="g1-py"><pre><button class="cp" onclick="cp(this)">copy</button"><span class="k">import</span> requests
+from urllib.parse <span class="k">import</span> quote
+
+url = <span class="s">"https://linkvertise.com/546946/example"</span>
+r = requests.get(<span class="s">f"https://domain.vercel.app/api/bypass?url={quote(url)}"</span>)
+print(r.json()[<span class="s">"result"</span>])</pre></div>
+        <div class="tab-pane" id="g1-curl"><pre><button class="cp" onclick="cp(this)">copy</button">curl "https://domain.vercel.app/api/bypass?url=https://linkvertise.com/..."</pre></div>
+      </div>
+    </div>
+
+    <!-- POST endpoint -->
+    <div data-aos="fade-up" data-aos-delay="80">
+      <p style="font-size:.76rem;font-weight:600;color:var(--slate-500);margin-bottom:.5rem">Via request body</p>
+      <div class="ep-row" style="border-radius:10px 10px 0 0">
+        <span class="badge-post">POST</span>
+        <span class="ep-path">/api/bypass</span>
+        <span class="ep-note">application/json</span>
+      </div>
+      <div class="code-block attached" style="margin-bottom:1rem">
+        <div class="tab-bar">
+          <button class="tab-btn active" onclick="tab(this,'p1','js')">JavaScript</button>
+          <button class="tab-btn" onclick="tab(this,'p1','py')">Python</button>
+          <button class="tab-btn" onclick="tab(this,'p1','curl')">cURL</button>
+        </div>
+        <div class="tab-pane active" id="p1-js"><pre><button class="cp" onclick="cp(this)">copy</button><span class="k">const</span> res = <span class="k">await</span> fetch(<span class="s">"/api/bypass"</span>, {
+  method: <span class="s">"POST"</span>,
+  headers: { <span class="s">"Content-Type"</span>: <span class="s">"application/json"</span> },
+  body: JSON.stringify({ url: <span class="s">"https://linkvertise.com/..."</span> })
+});
+<span class="k">const</span> data = <span class="k">await</span> res.json();
+console.log(data.result);</pre></div>
+        <div class="tab-pane" id="p1-py"><pre><button class="cp" onclick="cp(this)">copy</button"><span class="k">import</span> requests
+
+r = requests.post(<span class="s">"https://domain.vercel.app/api/bypass"</span>,
+    json={<span class="s">"url"</span>: <span class="s">"https://linkvertise.com/..."</span>})
+print(r.json()[<span class="s">"result"</span>])</pre></div>
+        <div class="tab-pane" id="p1-curl"><pre><button class="cp" onclick="cp(this)">copy</button>curl -X POST https://domain.vercel.app/api/bypass \
+  -H <span class="s">"Content-Type: application/json"</span> \
+  -d <span class="s">'{"url":"https://linkvertise.com/..."}'</span></pre></div>
+      </div>
+    </div>
+
+    <!-- Params -->
+    <div data-aos="fade-up" data-aos-delay="100">
+      <p style="font-size:.76rem;font-weight:600;color:var(--slate-500);margin-bottom:.5rem">Parameter</p>
+      <table class="ptable">
+        <thead><tr><th>Nama</th><th>Type</th><th>Wajib</th><th>Keterangan</th></tr></thead>
+        <tbody>
+          <tr><td class="pn">url</td><td class="pt">string</td><td><span class="pr">required</span></td><td>URL yang ingin dibypass</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Response -->
+    <div data-aos="fade-up" data-aos-delay="120">
+      <p style="font-size:.76rem;font-weight:600;color:var(--slate-500);margin-bottom:.5rem">Response</p>
+      <div class="json-card">
+        <div class="json-head">
+          <span class="json-title">200 — Berhasil</span>
+          <button class="json-cp" onclick="cpj(this,'{\n  &quot;owner&quot;: &quot;fidzzcodex&quot;,\n  &quot;result&quot;: &quot;https://url-tujuan-asli.com/file.zip&quot;\n}')">
+            <svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+            Copy
+          </button>
+        </div>
+        <div class="json-body">{
+  <span class="jk">"owner"</span>: <span class="jv">"fidzzcodex"</span>,
+  <span class="jk">"result"</span>: <span class="jv">"https://url-tujuan-asli.com/file.zip"</span>
+}</div>
+      </div>
+      <div class="json-card">
+        <div class="json-head">
+          <span class="json-title" style="color:#dc2626">Error</span>
+          <button class="json-cp" onclick="cpj(this,'{\n  &quot;owner&quot;: &quot;fidzzcodex&quot;,\n  &quot;error&quot;: &quot;Bypass failed&quot;\n}')">
+            <svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+            Copy
+          </button>
+        </div>
+        <div class="json-body">{
+  <span class="jk">"owner"</span>: <span class="jv">"fidzzcodex"</span>,
+  <span class="jk">"error"</span>: <span class="jv">"Bypass failed"</span>
+}</div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- CONTOH KODE -->
+<section class="sec" id="usage">
+  <div class="sec-inner">
+
+    <div data-aos="fade-up">
+      <div class="eyebrow">Contoh Kode</div>
+      <h2>Implementasi</h2>
+      <p class="sec-desc">Contoh lengkap — tinggal copy, ganti domain, langsung jalan.</p>
+    </div>
+
+    <div data-aos="fade-up" data-aos-delay="60">
+      <div class="code-block">
+        <div class="tab-bar">
+          <button class="tab-btn active" onclick="tab(this,'ex','js')">JavaScript</button>
+          <button class="tab-btn" onclick="tab(this,'ex','py')">Python</button>
+        </div>
+        <div class="tab-pane active" id="ex-js"><pre><button class="cp" onclick="cp(this)">copy</button><span class="c">// bypass.js</span>
+<span class="k">const</span> bypassURL = <span class="k">async</span> (url) => {
+  <span class="k">const</span> res = <span class="k">await</span> fetch(
+    <span class="s">`https://domain.vercel.app/api/bypass?url=${encodeURIComponent(url)}`</span>
+  );
+  <span class="k">const</span> data = <span class="k">await</span> res.json();
+  <span class="k">if</span> (data.error) <span class="k">throw new</span> Error(data.error);
+  <span class="k">return</span> data.result;
+};
+
+<span class="c">// Penggunaan</span>
+bypassURL(<span class="s">"https://linkvertise.com/546946/example"</span>)
+  .then(result => console.log(<span class="s">"Hasil:"</span>, result))
+  .catch(err => console.error(<span class="s">"Gagal:"</span>, err.message));</pre></div>
+        <div class="tab-pane" id="ex-py"><pre><button class="cp" onclick="cp(this)">copy</button"><span class="c"># bypass.py</span>
+<span class="k">import</span> requests
+<span class="k">from</span> urllib.parse <span class="k">import</span> quote
+
+<span class="k">def</span> bypass_url(url: str) -> str:
+    r = requests.get(
+        <span class="s">f"https://domain.vercel.app/api/bypass?url={quote(url)}"</span>,
+        timeout=<span class="n">15</span>
+    )
+    data = r.json()
+    <span class="k">if</span> <span class="s">"error"</span> <span class="k">in</span> data:
+        <span class="k">raise</span> Exception(data[<span class="s">"error"</span>])
+    <span class="k">return</span> data[<span class="s">"result"</span>]
+
+<span class="c"># Penggunaan</span>
+<span class="k">if</span> __name__ == <span class="s">"__main__"</span>:
+    result = bypass_url(<span class="s">"https://linkvertise.com/546946/example"</span>)
+    print(<span class="s">f"Hasil: {result}"</span>)</pre></div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- SUPPORTED -->
+<section class="sec" id="supported">
+  <div class="sec-inner">
+    <div data-aos="fade-up">
+      <div class="eyebrow">Referensi</div>
+      <h2>Supported Services</h2>
+      <p class="sec-desc">Layanan yang bisa dibypass via endpoint ini.</p>
+    </div>
+    <div class="grid-2">
+      <div class="svc" data-aos="fade-up" data-aos-delay="0"><div class="svc-name">LootLabs</div><div class="svc-dom">links.lootlabs.gg</div></div>
+      <div class="svc" data-aos="fade-up" data-aos-delay="40"><div class="svc-name">Linkvertise</div><div class="svc-dom">linkvertise.com</div></div>
+      <div class="svc" data-aos="fade-up" data-aos-delay="80"><div class="svc-name">Shorte.st</div><div class="svc-dom">shorte.st</div></div>
+      <div class="svc" data-aos="fade-up" data-aos-delay="120"><div class="svc-name">Rekonise</div><div class="svc-dom">rekonise.com</div></div>
+      <div class="svc" data-aos="fade-up" data-aos-delay="160"><div class="svc-name">Work.ink</div><div class="svc-dom">work.ink</div></div>
+      <div class="svc" data-aos="fade-up" data-aos-delay="200"><div class="svc-name">Boost.ink</div><div class="svc-dom">boost.ink</div></div>
+      <div class="svc" data-aos="fade-up" data-aos-delay="240"><div class="svc-name">LootDest</div><div class="svc-dom">lootdest.org</div></div>
+      <div class="svc" data-aos="fade-up" data-aos-delay="280"><div class="svc-name">50+ lainnya</div><div class="svc-dom">via bypass.tools</div></div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <p>BypassURL &nbsp;·&nbsp; <a href="/">Kembali ke App</a> &nbsp;·&nbsp; by <a href="https://github.com/fidzzcodex" target="_blank">fidzzcodex</a></p>
+</footer>
+
+</div>
+
+<script src="https://unpkg.com/aos@2.3.4/dist/aos.js"></script>
+<script>
+AOS.init({ once: true, offset: 50 });
+
+const tab = (btn, g, l) => {
+  btn.closest('.tab-bar').querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  btn.closest('.code-block').querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+  document.getElementById(`${g}-${l}`)?.classList.add('active');
+};
+
+const cp = btn => {
+  const txt = btn.parentElement.innerText.replace(/^copy$/m,'').replace(/^copied!$/m,'').trim();
+  navigator.clipboard.writeText(txt).then(() => {
+    btn.textContent = 'copied!';
+    setTimeout(() => btn.textContent = 'copy', 1800);
+  });
+};
+
+const cpj = (btn, raw) => {
+  navigator.clipboard.writeText(raw.replace(/&quot;/g,'"')).then(() => {
+    const orig = btn.innerHTML;
+    btn.textContent = 'Copied!';
+    setTimeout(() => btn.innerHTML = orig, 1800);
+  });
+};
+
+// active nav anchor on scroll
+const secs = document.querySelectorAll('section[id]');
+secs.forEach(s => new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      document.querySelectorAll('.nav-anchors a').forEach(a => a.classList.remove('active'));
+      document.querySelector(`.nav-anchors a[href="#${e.target.id}"]`)?.classList.add('active');
+    }
+  });
+}, { rootMargin: '-30% 0px -65% 0px' }).observe(s));
+</script>
+</body>
+</html>
